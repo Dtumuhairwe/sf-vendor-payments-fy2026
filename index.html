@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>San Francisco Vendor Payments — FY2026</title>
+<meta name="description" content="Of $16.83B recorded in San Francisco's FY2026 vendor payment file, only $5.50B is operating spend. 511,274 records analysed in Excel.">
+<style>
+  :root{--navy:#1B3A54;--blue:#3A6E8F;--orange:#D97A34;--ink:#1B3A54;
+        --muted:#6E8091;--border:#DCE4EA;--card:#EEF3F6}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#fff;color:var(--ink);
+       font-family:"Aptos Narrow","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+       -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding-bottom:20px}
+  header{background:var(--navy);color:#fff;text-align:center;padding:16px 18px 13px}
+  header h1{font-size:clamp(19px,2.1vw,27px);font-weight:700;letter-spacing:-.01em}
+  header p{font-size:clamp(11px,1vw,13px);color:#C6D6E2;margin-top:4px}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:9px 10px}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;
+       padding:8px 6px;text-align:center}
+  .kpi .lab{font-size:10px;font-weight:700;color:#5C7183}
+  .kpi .val{font-size:clamp(17px,1.9vw,24px);font-weight:700;margin-top:2px;line-height:1.1}
+  .kpi.accent .val{color:var(--orange)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 10px 9px}
+  .panel{border:1px solid var(--border);border-radius:8px;padding:12px 14px 13px;background:#fff}
+  .panel h2{font-size:14px;font-weight:700;text-align:center;margin-bottom:10px}
+  .row{display:grid;grid-template-columns:172px 1fr 52px;align-items:center;
+       gap:8px;margin-bottom:6px;font-size:11.5px}
+  .row .name{text-align:right;line-height:1.2}
+  .track{display:block;height:12px;width:100%}
+  .bar{display:block;height:12px;min-width:2px;background:var(--blue);
+       border-radius:0 3px 3px 0;transition:filter .15s}
+  .row:hover .bar{filter:brightness(1.15)}
+  .bar.hi{background:var(--orange)}
+  .row .amt{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  .note{font-size:10.5px;color:var(--muted);margin-top:9px;line-height:1.4}
+  .donut{display:flex;align-items:center;gap:20px}
+  .donut svg{flex:0 0 auto}
+  .dtext{font-size:11.5px;color:var(--muted);line-height:1.55}
+  .dtext b{color:var(--ink)}
+  .legend{margin-top:8px;font-size:11px}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin:0 5px 0 0;vertical-align:-1px}
+  .legend span{margin-right:14px}
+  footer{padding:12px 16px 0;font-size:10.5px;color:var(--muted);text-align:center;line-height:1.6}
+  footer a{color:var(--blue)}
+  @media(max-width:1080px){.row{grid-template-columns:140px 1fr 50px}}
+  @media(max-width:860px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .kpi:first-child{grid-column:1/-1}
+    .grid{grid-template-columns:1fr}
+    .donut{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>San Francisco Vendor Payments — FY2026</h1>
+  <p>Recorded value classified by spend category, department and vendor</p>
+</header>
+
+<div class="kpis">
+  <div class="kpi"><div class="lab">Payment Records</div><div class="val">511,274</div></div>
+  <div class="kpi"><div class="lab">Total Recorded Value</div><div class="val">$16.83B</div></div>
+  <div class="kpi accent"><div class="lab">Operating Spend</div><div class="val">$5.50B</div></div>
+  <div class="kpi"><div class="lab">Top 10 Departments</div><div class="val">81.5%</div></div>
+  <div class="kpi"><div class="lab">Top 10 Vendors</div><div class="val">44.0%</div></div>
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <h2>Top 10 Departments by Recorded Value</h2>
+    <div id="depts"></div>
+  </div>
+  <div class="panel">
+    <h2>Top 10 Vendors by Recorded Value</h2>
+    <div id="vendors"></div>
+    <p class="note">Single Payment Payees is an aggregation bucket for one-off payees, not a single vendor.</p>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <h2>Top 10 Spending Objects by Recorded Value</h2>
+    <div id="objects"></div>
+  </div>
+  <div class="panel">
+    <h2>Where the $16.83B Actually Goes</h2>
+    <div id="cats"></div>
+    <p class="note">Only Operating Goods &amp; Services is money spent buying goods and services. The rest is debt, benefits, grants, capital and balance-sheet entries.</p>
+    <hr style="border:0;border-top:1px solid var(--border);margin:12px 0 11px">
+    <h2 style="margin-bottom:9px">Contract Coverage by Value</h2>
+    <div class="donut">
+      <svg width="104" height="104" viewBox="0 0 42 42" role="img"
+           aria-label="46 percent of recorded value carries a contract number, 54 percent does not">
+        <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#3A6E8F" stroke-width="7"
+                stroke-dasharray="46.4 53.6" stroke-dashoffset="25"></circle>
+        <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#D97A34" stroke-width="7"
+                stroke-dasharray="53.6 46.4" stroke-dashoffset="78.6"></circle>
+        <text x="21" y="23" text-anchor="middle" font-size="6" font-weight="700" fill="#1B3A54">46%</text>
+      </svg>
+      <div>
+        <div class="dtext"><b>46%</b> of recorded value carries a contract number.<br>
+        <b>54%</b> does not — measured by dollars, not row count.</div>
+        <div class="legend">
+          <span><i style="background:#3A6E8F"></i>Present</span>
+          <span><i style="background:#D97A34"></i>Blank</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Source: DataSF Vendor Payments (Vouchers), dataset
+  <a href="https://data.sfgov.org/City-Management-and-Ethics/Vendor-Payments-Vouchers-/n9pm-xkyq">n9pm-xkyq</a>,
+  FY2026, 511,274 payment records. Built in Microsoft Excel; every figure reconciled to the full row count.
+  · <a href="https://github.com/Dtumuhairwe/sf-vendor-payments-fy2026">Repository</a>
+</footer>
+
+</div>
+<script>
+const depts=[["GEN General City - Unallocated",2.46],["PUC Public Utilities Commsn",2.11],
+["AIR Airport Commission",2.10],["DPH Public Health",1.88],["RET Retirement System",1.49],
+["HSS Health Service System",1.37],["HSA Human Services Agency",0.64],
+["MTA Municipal Transprtn Agncy",0.62],["HOM Homelessness Services",0.56],["MYR Mayor",0.48]];
+const vendors=[["J P Morgan Chase Bank NA",1.97],["Bank of New York Mellon Trust",0.75],
+["US Bank National Association",0.68],["The Bank of New York Mellon",0.66],
+["Blue Shield of Calif",0.63],["The Depository Trust Company",0.61],
+["Kaiser Foundation Health Plan",0.61],["Single Payment Payees",0.54],
+["Calif Dept of Health Care Svcs",0.53],["Turner Construction Co",0.44]];
+const objects=[["Professional/Specialized Svcs",3.02],["Community Based Org Srvcs",1.46],
+["HlthSvcFnd-HMO/Dental/Disab",1.28],["Unearned Rev and Other Liabs",1.13],
+["Bldg: Structures/Improvements",1.05],["Debt Interest & Other Charges",1.01],
+["Debt Redemption",0.96],["Other Non-Operating Revenues",0.67],
+["Federal Income Tax (withheld)",0.67],["Taxes: Licenses/Permits",0.42]];
+const cats=[["Operating Goods & Services",5.50,true],["Balance Sheet & Revenue",4.70],
+["Debt Service",2.00],["Grants & Aid",1.86],["Employee Benefits & Retirement",1.50],
+["Capital Projects",1.27]];
+function draw(id,data){
+  const max=Math.max(...data.map(d=>d[1]));
+  document.getElementById(id).innerHTML=data.map(d=>
+    `<div class="row" title="${d[0]}: $${d[1].toFixed(2)} billion">
+       <span class="name">${d[0]}</span>
+       <span class="track"><span class="bar${d[2]?" hi":""}" style="width:${(d[1]/max*100).toFixed(1)}%"></span></span>
+       <span class="amt">$${d[1].toFixed(2)}B</span></div>`).join("");
+}
+draw("depts",depts);draw("vendors",vendors);draw("objects",objects);draw("cats",cats);
+</script>
+</body>
+</html>
