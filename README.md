@@ -2,7 +2,7 @@
 
 **Of the $16.83B recorded in San Francisco's vendor payment file, only $5.50B is money the city spent buying goods and services.**
 
-Built entirely in Excel from 511,274 public payment records. No Python, no BI tool.
+Built entirely in Excel from 511,274 public payment records.
 
 ![Dashboard](dashboard.png)
 
